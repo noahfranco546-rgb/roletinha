@@ -8,8 +8,8 @@ from pathlib import Path
 
 app = FastAPI()
 
-# Instâncias globais (copiadas de main.py)
-users = UserList([
+# Dados originais (usados para reset)
+ORIGINAL_USERS = [
     "Gabriel - Hardware (Fullcond)",
     "Vitor - Mobile (Fullcond)",
     "Gabriel - AWS(careca) Infra",
@@ -20,9 +20,9 @@ users = UserList([
     "Lucas Vieria (capas) - (Fullcond)",
     "Noah - (Fullcond)",
     "Vitor santos - (Fullcond)"
-])
+]
 
-elements = PokemonList([
+ORIGINAL_ELEMENTS = [
     "Aço (Steel)",
     "Água (Water)",
     "Dragão (Dragon)",
@@ -41,7 +41,11 @@ elements = PokemonList([
     "Venenoso (Poison)",
     "Fantasma (Ghost)",
     "Voador (Flying)"
-])
+]
+
+# Instâncias globais (iniciadas a partir dos originais)
+users = UserList(list(ORIGINAL_USERS))
+elements = PokemonList(list(ORIGINAL_ELEMENTS))
 
 # Servir arquivos estáticos
 static_dir = Path(__file__).parent / "static"
@@ -49,7 +53,27 @@ app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
 @app.get("/")
 async def root():
+    # resetar as listas sempre que a página principal for servida
+    reset_data()
     return FileResponse(static_dir / "index.html")
+
+
+@app.get("/index.html")
+async def index_html():
+    # também resetar se o cliente requisitar /index.html diretamente
+    reset_data()
+    return FileResponse(static_dir / "index.html")
+
+
+def reset_data():
+    users.list = list(ORIGINAL_USERS)
+    elements.list = list(ORIGINAL_ELEMENTS)
+
+
+@app.post("/api/reset")
+async def api_reset():
+    reset_data()
+    return {"status": "ok", "message": "listas resetadas"}
 
 @app.get("/api/users")
 async def get_users():
