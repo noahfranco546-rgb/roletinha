@@ -69,6 +69,9 @@ def reset_data():
     users.list = list(ORIGINAL_USERS)
     elements.list = list(ORIGINAL_ELEMENTS)
 
+@app.get("health")
+async def health():
+    return {"status": "ok"}
 
 @app.post("/api/reset")
 async def api_reset():
