@@ -4,6 +4,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from userList import UserList
 from pokemonList import PokemonList
+from SortedList import SortedList
 from pathlib import Path
 
 app = FastAPI()
@@ -43,6 +44,9 @@ ORIGINAL_ELEMENTS = [
     "Voador (Flying)"
 ]
 
+listSortedUsers=[]
+listSortedElements=[]
+
 # Instâncias globais (iniciadas a partir dos originais)
 users = UserList(list(ORIGINAL_USERS))
 elements = PokemonList(list(ORIGINAL_ELEMENTS))
@@ -68,6 +72,8 @@ async def index_html():
 def reset_data():
     users.list = list(ORIGINAL_USERS)
     elements.list = list(ORIGINAL_ELEMENTS)
+    listSortedUsers.clear()
+    listSortedElements.clear()
 
 @app.get("/api/health")
 async def health():
@@ -86,13 +92,26 @@ async def get_users():
 async def get_elements():
     return {"elements": elements.list}
 
-@app.post("/api/draw/user")
-async def draw_user():
-    return {"user": users.doorPrize()}
+@app.get("/api/sorted/users")
+async def get_sorted_users():
+    return {"sorted_users": listSortedUsers}
 
-@app.post("/api/draw/element")
-async def draw_element():
-    return {"element": elements.doorPrizePokemon()}
+@app.get("/api/sorted/elements")
+async def get_sorted_elements():
+    return {"sorted_elements": listSortedElements}
+
+
+@app.post("/api/draw/pair")
+async def draw_pair():
+    sorter = SortedList(users, elements)
+    res = sorter.draw_pair()
+    if 'error' in res:
+        return {"error": res['error']}
+    # armazenar histórico simples
+    listSortedUsers.append(res['usuario'])
+    listSortedElements.append(res['elemento'])
+    return res
+
 
 
 class Command(BaseModel):
