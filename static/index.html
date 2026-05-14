@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pokémon Draw</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 2rem; }
+    button { margin-right: .5rem; }
+    .box { margin-top: 1rem; padding: .5rem; border: 1px solid #ddd; }
+  </style>
+</head>
+<body>
+  <h1>Pokémon Draw</h1>
+  <div>
+    <button id="btn-list-users">Listar usuários</button>
+    <button id="btn-draw-user">Sortear usuário</button>
+    <button id="btn-list-elements">Listar elementos</button>
+    <button id="btn-draw-element">Sortear elemento</button>
+  </div>
+
+  <div class="box">
+    <strong>Resultado:</strong>
+    <div id="result">—</div>
+  </div>
+
+  <script>
+    const $ = id => document.getElementById(id);
+    const result = $('result');
+
+    async function getJson(path, method='GET'){
+      const resp = await fetch(path, { method });
+      return await resp.json();
+    }
+
+    $('btn-list-users').addEventListener('click', async () => {
+      const data = await getJson('/api/users');
+      result.textContent = data.users.join('\n');
+    });
+
+    $('btn-list-elements').addEventListener('click', async () => {
+      const data = await getJson('/api/elements');
+      result.textContent = data.elements.join('\n');
+    });
+
+    $('btn-draw-user').addEventListener('click', async () => {
+      const data = await getJson('/api/draw/user', 'POST');
+      result.textContent = data.user;
+    });
+
+    $('btn-draw-element').addEventListener('click', async () => {
+      const data = await getJson('/api/draw/element', 'POST');
+      result.textContent = data.element;
+    });
+  </script>
+</body>
+</html>
