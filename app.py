@@ -2,7 +2,6 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
-from userList import UserList
 from pokemonList import PokemonList
 from SortedList import SortedList
 from pathlib import Path
